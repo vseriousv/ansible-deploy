@@ -1,0 +1,22 @@
+- name: Push code AND Run
+  hosts: hostname
+  tasks:
+    - name: Sync code
+      ansible.builtin.synchronize:
+        src: {path_to_local_project}
+        dest: {path_to_remote_directory}
+        recursive: yes
+        delete: yes
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=.env"
+
+    - name: Build Docker image
+      ansible.builtin.shell:
+        chdir: {path_to_remote_directory_with_project_folder}
+        cmd: docker build -t {image_name} .
+
+    - name: Run Docker compose
+      ansible.builtin.shell:
+        chdir: {path_to_remote_directory_with_docker_compose}
+        cmd: docker compose up -d {service_name}
